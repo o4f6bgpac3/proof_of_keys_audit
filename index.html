@@ -4,13 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annual Proof of Keys Audit</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <!-- React -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 </head>
 <body>
-    <div id="root"></div>
-    <script src="app.js"></script>
+<div id="root"></div>
+<script type="text/babel" data-type="module">
+    const ChecklistApp = () => {
+        const categories = {
+            'Mac': [
+                { id: 'A1', text: 'Full disk encryption' },
+                { id: 'A2', text: 'File Vault recovery key accessible and legible' },
+                { id: 'A3', text: 'Security key for 2FA' },
+                { id: 'A4', text: 'Automatic screen lock set' },
+                { id: 'A5', text: 'Find My Mac remote tracking and erasure' },
+                { id: 'A6', text: 'Firewall enabled' },
+                { id: 'A7', text: 'Automatic login disabled' },
+                { id: 'A8', text: 'VPN connection' },
+            ],
+            'iPhone': [
+                { id: 'B1', text: 'Face ID' },
+                { id: 'B2', text: 'Full disc encryption' },
+                { id: 'B3', text: 'Pass key' },
+                { id: 'B4', text: 'Stolen phone protection on' },
+                { id: 'B5', text: 'VPN connection' },
+                { id: 'B6', text: 'Private Relay turned on' },
+                { id: 'B7', text: 'USB restriction On' },
+                { id: 'B8', text: 'Review app permissions for data access' },
+            ],
+            'iCloud': [
+                { id: 'C1', text: 'Advanced data protection on' },
+                { id: 'C2', text: 'Remove old devices' },
+                { id: 'C3', text: 'Account recovery - Keys generated' },
+                { id: 'C4', text: 'Account recovery - Keys stored in 2 separate locations and legible' },
+                { id: 'C5', text: 'Access iCloud Data on web disabled' },
+                { id: 'C6', text: 'Key Chain - No reused passwords' },
+                { id: 'C7', text: 'Automatic timeout lock set' },
+                { id: 'C8', text: 'Data wipe on failed attempts' },
+            ],
+            'Umbral Server & Bitcoin Node': [
+                { id: 'D1', text: 'Tailscale mesh network between server and devices' },
+                { id: 'D2', text: 'Tor enabled for routing internet traffic' },
+                { id: 'D3', text: 'Bitcoin wallet backend connected to self hosted full node' },
+            ],
+            'Financial Apps & Websites': [
+                { id: 'E1', text: 'Security keys for 2FA' },
+                { id: 'E2', text: 'Add security keys for all financial accounts that provide it' },
+                { id: 'E3', text: 'Create passkeys for all financial accounts that provide it' },
+                { id: 'E4', text: 'Unique e-mail addresses used over all accounts' },
+                { id: 'E5', text: 'Randomly generated alphanumeric passwords' },
+            ],
+            'Crypto Stuff': [
+                { id: 'F1', text: 'Mnemonic\'s on steel and paper. Accessible & legible' },
+                { id: 'F2', text: 'Hardware devises and encrypted USB stored in faraday box' },
+                { id: 'F3', text: 'Perform simulated recovery of all hardware wallets' },
+                { id: 'F4', text: 'Backup passphrases in 2 separate places as minimum' },
+                { id: 'F5', text: 'Backup of multisig keystores in 2 separate locations as minimum' },
+                { id: 'F6', text: 'Backup of multisig configuration files in 2 separate locations as minimum' },
+                { id: 'F7', text: 'Multisig 2/2 with unique passphrase for both private keys' },
+                { id: 'F8', text: 'Physical backups stored in tamper evident bags' },
+                { id: 'F9', text: 'Emergency protocols / instructions' },
+                { id: 'F10', text: 'Update Passwords annually' },
+                { id: 'F11', text: 'All bitcoin not required for orders removed from exchanges' },
+            ],
+        };
+
+        const [checklist, setChecklist] = React.useState({});
+        const [showSaved, setShowSaved] = React.useState(false);
+
+        React.useEffect(() => {
+            const saved = localStorage.getItem('proofOfKeysChecklist');
+            if (saved) {
+                setChecklist(JSON.parse(saved));
+            }
+        }, []);
+
+        const handleCheck = (id) => {
+            const newChecklist = { ...checklist, [id]: !checklist[id] };
+            setChecklist(newChecklist);
+            localStorage.setItem('proofOfKeysChecklist', JSON.stringify(newChecklist));
+            setShowSaved(true);
+            setTimeout(() => setShowSaved(false), 2000);
+        };
+
+        const calculateProgress = (items) => {
+            const checked = items.filter(item => checklist[item.id]).length;
+            return Math.round((checked / items.length) * 100);
+        };
+
+        const resetChecklist = () => {
+            setChecklist({});
+            localStorage.removeItem('proofOfKeysChecklist');
+        };
+
+        return (
+            <div className="min-h-screen bg-gray-50 py-8 px-4">
+                <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-3xl font-bold text-gray-900">Annual Proof of Keys Audit</h1>
+                        <button
+                            onClick={resetChecklist}
+                            className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                                <path d="M21 3v5h-5" />
+                                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                                <path d="M8 16H3v5" />
+                            </svg>
+                            Reset
+                        </button>
+                    </div>
+
+                    {showSaved && (
+                        <div className="fixed bottom-4 right-4 bg-green-50 text-green-800 px-4 py-2 rounded-md shadow-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg>
+                            Progress saved
+                        </div>
+                    )}
+
+                    {Object.entries(categories).map(([category, items]) => (
+                        <div key={category} className="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div className="p-4 border-b border-gray-200">
+                                <div className="flex justify-between items-center">
+                                    <h2 className="text-lg font-medium text-gray-900">{category}</h2>
+                                    <span className="text-sm text-gray-500">
+                                            {calculateProgress(items)}% complete
+                                        </span>
+                                </div>
+                            </div>
+                            <div className="p-4">
+                                <div className="space-y-2">
+                                    {items.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                                            onClick={() => handleCheck(item.id)}
+                                        >
+                                            {checklist[item.id] ? (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                                </svg>
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                </svg>
+                                            )}
+                                            <span className={`flex-1 ${checklist[item.id] ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                                                    {item.text}
+                                                </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ChecklistApp />);
+</script>
 </body>
 </html>
